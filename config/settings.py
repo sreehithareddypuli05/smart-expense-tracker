@@ -18,7 +18,11 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-before-prod
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Add your domain when deploying (e.g. 'myapp.onrender.com')
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = [
+    "smart-expense-tracker-1-bnxg.onrender.com",
+    "localhost",
+    "127.0.0.1"
+]
 
 # ─── APPLICATION DEFINITION ────────────────────────────────────────────────────
 
