@@ -3,12 +3,19 @@
 A simple and secure web app to track your daily expenses, built with Django + Bootstrap.
 
 ✨ Features
+
 🔐 User Signup, Login & Logout
+
 💸 Add, edit, delete expenses
+
 📊 Dashboard with total spending & charts
+
 🏷️ Category-based tracking & filtering
+
 📱 Responsive design (mobile + desktop)
+
 🌙 Clean dark-themed UI
+
 🛠️ Tech Stack
 Backend: Django (Python)
 Frontend: HTML, CSS, Bootstrap, JS
