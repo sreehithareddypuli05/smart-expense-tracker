@@ -19,7 +19,7 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Add your domain when deploying (e.g. 'myapp.onrender.com')
 ALLOWED_HOSTS = [
-    "smart-expense-tracker-1-bnxg.onrender.com",
+    "smart-expense-tracker-2-bnxg.onrender.com",
     "localhost",
     "127.0.0.1"
 ]
