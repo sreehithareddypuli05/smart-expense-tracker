@@ -17,31 +17,49 @@ A simple and secure web app to track your daily expenses, built with Django + Bo
 🌙 Clean dark-themed UI
 
 🛠️ Tech Stack
+
 Backend: Django (Python)
+
 Frontend: HTML, CSS, Bootstrap, JS
+
 Database: SQLite (dev) / PostgreSQL (prod)
+
 Deployment: Render
+
 🚀 Run Locally
-git clone <your-repo>
+
+git clone this-repo
+
 cd smart-expense-tracker
 
 python -m venv venv
+
 source venv/bin/activate   # or venv\Scripts\activate (Windows)
 
 pip install -r requirements.txt
+
 python manage.py migrate
+
 python manage.py runserver
 
 Open: http://127.0.0.1:8000
 
 🌐 Deployment
+
 Push code to GitHub
+
 Connect repo to Render
+
 Add environment variables
+
 Deploy 🚀
+
 🔒 Security
+
 Passwords are securely hashed
+
 Only logged-in users can access data
+
 Each user sees only their own expenses
 ❤️
 
