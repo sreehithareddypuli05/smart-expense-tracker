@@ -1,0 +1,225 @@
+{% extends 'expenses/base.html' %}
+{% load static %}
+{% block title %}Dashboard — ExpenseIQ{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Your Expenses</h1>
+      <p class="page-subtitle">Track, manage, and understand your spending</p>
+    </div>
+    <a href="{% url 'add_expense' %}" class="btn-gold">
+      <i class="bi bi-plus-lg"></i>Add Expense
+    </a>
+  </div>
+
+  <!-- Stat Cards Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-4">
+      <div class="stat-card">
+        <div class="stat-icon gold">💸</div>
+        <div>
+          <div class="stat-label">Total Spent</div>
+          <div class="stat-value gold-text">₹{{ total_spending|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="stat-card">
+        <div class="stat-icon green">📊</div>
+        <div>
+          <div class="stat-label">Total Entries</div>
+          <div class="stat-value">{{ expense_count }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="stat-card">
+        <div class="stat-icon blue">🏷️</div>
+        <div>
+          <div class="stat-label">Top Category</div>
+          <div class="stat-value" style="font-size:1.1rem; font-family:'DM Sans',sans-serif;">
+            {% if category_totals %}{{ category_totals.0.category }}{% else %}—{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Expense Table -->
+    <div class="col-lg-8">
+      <div class="card-dark">
+
+        <!-- Table Header + Filter -->
+        <div style="padding:1.2rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+          <h3 style="font-size:1rem; font-family:'DM Sans',sans-serif; font-weight:600; color:var(--text-primary); margin:0;">
+            <i class="bi bi-list-ul me-2" style="color:var(--gold);"></i>Expense List
+          </h3>
+
+          <!-- Category Filter — POST form avoids & encoding issues in URL -->
+          <form method="GET" action="{% url 'dashboard' %}" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+            <button type="submit" name="category" value=""
+              class="filter-chip {% if not selected_category %}active{% endif %}">
+              All
+            </button>
+            {% for cat in categories %}
+            <button type="submit" name="category" value="{{ cat }}"
+              class="filter-chip {% if selected_category == cat %}active{% endif %}">
+              {{ cat }}
+            </button>
+            {% endfor %}
+          </form>
+        </div>
+
+        <!-- Table -->
+        {% if expenses %}
+        <div style="overflow-x:auto;">
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th style="text-align:right;">Amount</th>
+                <th style="text-align:center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for expense in expenses %}
+              <tr>
+                <td class="expense-title">{{ expense.title }}</td>
+                <td>
+                  <span class="category-badge {{ expense.category }}">{{ expense.category }}</span>
+                </td>
+                <td style="color:var(--text-muted); font-size:0.85rem;">{{ expense.date }}</td>
+                <td style="text-align:right;">
+                  <span class="expense-amount">₹{{ expense.amount|floatformat:2 }}</span>
+                </td>
+                <td style="text-align:center;">
+                  <div style="display:flex; gap:0.4rem; justify-content:center;">
+                    <a href="{% url 'edit_expense' expense.pk %}" class="btn-outline-dim">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'delete_expense' expense.pk %}" class="btn-danger-dim">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>No expenses yet</h3>
+          <p>
+            {% if selected_category %}
+              No expenses in "{{ selected_category }}" — try another filter.
+            {% else %}
+              Add your first expense to get started!
+            {% endif %}
+          </p>
+          {% if not selected_category %}
+          <a href="{% url 'add_expense' %}" class="btn-gold mt-3">
+            <i class="bi bi-plus-lg"></i>Add First Expense
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- Sidebar: Chart + Category Breakdown -->
+    <div class="col-lg-4">
+
+      {% if category_totals %}
+      <!-- Doughnut Chart -->
+      <div class="card-dark mb-4" style="padding:1.4rem;">
+        <h3 style="font-size:0.9rem; font-family:'DM Sans',sans-serif; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:1.2rem;">
+          <i class="bi bi-pie-chart me-2" style="color:var(--gold);"></i>By Category
+        </h3>
+        <div style="position:relative; height:200px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Category Breakdown List -->
+      <div class="card-dark" style="padding:1.4rem;">
+        <h3 style="font-size:0.9rem; font-family:'DM Sans',sans-serif; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:1rem;">
+          <i class="bi bi-bar-chart me-2" style="color:var(--gold);"></i>Breakdown
+        </h3>
+        {% for cat in category_totals %}
+        <div style="margin-bottom:0.9rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="font-size:0.85rem; color:var(--text-primary);">{{ cat.category }}</span>
+            <span style="font-size:0.85rem; color:var(--gold); font-weight:600;">₹{{ cat.total|floatformat:2 }}</span>
+          </div>
+          {% if total_spending %}
+          <div style="height:4px; background:var(--border); border-radius:2px; overflow:hidden;">
+            <div style="height:100%; background:var(--gold); border-radius:2px; width:{% widthratio cat.total total_spending 100 %}%;"></div>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="card-dark" style="padding:2rem; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.8rem; opacity:0.3;">📈</div>
+        <p style="color:var(--text-dimmed); font-size:0.85rem;">Charts appear once you add expenses.</p>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if category_totals %}
+<script>
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  const COLORS = [
+    '#d4af37','#ff6b6b','#4ecdc4','#ffe66d','#a8e6cf',
+    '#ff8b94','#c3bef0','#ffd93d','#6bcb77','#8b949e'
+  ];
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        data: {{ chart_data|safe }},
+        backgroundColor: COLORS.slice(0, {{ chart_labels|length }}),
+        borderWidth: 2,
+        borderColor: '#161b22',
+        hoverBorderColor: '#0d1117',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ₹${ctx.parsed.toFixed(2)}` },
+          backgroundColor: '#1c2230',
+          borderColor: '#30363d',
+          borderWidth: 1,
+          titleColor: '#e6edf3',
+          bodyColor: '#8b949e',
+        }
+      },
+      cutout: '70%',
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

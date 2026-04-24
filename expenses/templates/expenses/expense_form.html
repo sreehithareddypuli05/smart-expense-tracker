@@ -1,0 +1,89 @@
+{% extends 'expenses/base.html' %}
+{% block title %}{{ form_title }} — ExpenseIQ{% endblock %}
+
+{% block content %}
+<div class="page-wrapper" style="max-width: 680px;">
+
+  <!-- Back link -->
+  <a href="{% url 'dashboard' %}" style="color:var(--text-muted); font-size:0.85rem; display:inline-flex; align-items:center; gap:0.4rem; margin-bottom:1.5rem;">
+    <i class="bi bi-arrow-left"></i>Back to Dashboard
+  </a>
+
+  <div class="card-dark">
+    <!-- Form Header -->
+    <div style="padding: 1.6rem 2rem; border-bottom: 1px solid var(--border);">
+      <h2 style="font-size:1.4rem; margin:0;">{{ form_title }}</h2>
+      {% if expense %}
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.3rem;">
+        Editing: <strong style="color:var(--text-primary);">{{ expense.title }}</strong>
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- Form Body -->
+    <div style="padding: 2rem;">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-3">
+
+          <!-- Title -->
+          <div class="col-12">
+            <label class="form-label" for="{{ form.title.id_for_label }}">
+              <i class="bi bi-tag me-1"></i>Expense Title
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <div class="invalid-feedback d-block">{{ form.title.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Amount -->
+          <div class="col-sm-6">
+            <label class="form-label" for="{{ form.amount.id_for_label }}">
+              <i class="bi bi-currency-rupee me-1"></i>Amount (₹)
+            </label>
+            {{ form.amount }}
+            {% if form.amount.errors %}
+            <div class="invalid-feedback d-block">{{ form.amount.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Date -->
+          <div class="col-sm-6">
+            <label class="form-label" for="{{ form.date.id_for_label }}">
+              <i class="bi bi-calendar3 me-1"></i>Date
+            </label>
+            {{ form.date }}
+            {% if form.date.errors %}
+            <div class="invalid-feedback d-block">{{ form.date.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Category -->
+          <div class="col-12">
+            <label class="form-label" for="{{ form.category.id_for_label }}">
+              <i class="bi bi-grid me-1"></i>Category
+            </label>
+            {{ form.category }}
+            {% if form.category.errors %}
+            <div class="invalid-feedback d-block">{{ form.category.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex; gap:0.8rem; margin-top:1.8rem; flex-wrap:wrap;">
+          <button type="submit" class="btn-gold">
+            <i class="bi bi-check-lg"></i>{{ btn_label }}
+          </button>
+          <a href="{% url 'dashboard' %}" class="btn-outline-dim" style="display:inline-flex; align-items:center; gap:0.3rem; padding:0.6rem 1.2rem; text-decoration:none;">
+            <i class="bi bi-x-lg"></i>Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
