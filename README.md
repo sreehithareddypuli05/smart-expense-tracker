@@ -3,8 +3,11 @@ live-https://smart-expense-tracker-7.onrender.com/
 
 https://smart-expense-tracker-7.onrender.com/create-admin/ creates admin
 with username:admin 
+
 password:admin123
+
 (u can see the user details in your admin portal)
+
 A simple and secure web app to track your daily expenses, built with Django + Bootstrap.
 
 ✨ Features
