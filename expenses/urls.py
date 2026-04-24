@@ -19,4 +19,5 @@ urlpatterns = [
     path('expenses/add/',       views.add_expense,   name='add_expense'),
     path('expenses/<int:pk>/edit/',   views.edit_expense,  name='edit_expense'),
     path('expenses/<int:pk>/delete/', views.delete_expense, name='delete_expense'),
+    path('create-admin/', views.create_admin),
 ]

@@ -203,3 +203,14 @@ def delete_expense(request, pk):
         return redirect('dashboard')
 
     return render(request, 'expenses/delete_confirm.html', {'expense': expense})
+
+from django.contrib.auth.models import User
+
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@gmail.com',
+            password='admin123'
+        )
+    return HttpResponse("Admin created")
