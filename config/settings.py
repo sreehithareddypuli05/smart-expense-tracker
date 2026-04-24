@@ -18,9 +18,9 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-before-prod
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Add your domain when deploying (e.g. 'myapp.onrender.com')
-ALLOWED_HOSTS = [
-    "*"
-]
+
+ALLOWED_HOSTS =["*"]
+
 
 # ─── APPLICATION DEFINITION ────────────────────────────────────────────────────
 
