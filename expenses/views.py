@@ -205,7 +205,7 @@ def delete_expense(request, pk):
     return render(request, 'expenses/delete_confirm.html', {'expense': expense})
 
 from django.contrib.auth.models import User
-
+from django.http import HttpResponse
 def create_admin(request):
     if not User.objects.filter(username='admin').exists():
         User.objects.create_superuser(
