@@ -1,4 +1,7 @@
 💰 ExpenseIQ — Smart Expense Tracker
+live-https://smart-expense-tracker-7.onrender.com/
+
+https://smart-expense-tracker-7.onrender.com/create-admin/ creates admin 
 
 A simple and secure web app to track your daily expenses, built with Django + Bootstrap.
 
