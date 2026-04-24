@@ -2,7 +2,6 @@
 Django forms for Smart Expense Tracker.
 Forms handle both rendering widgets in templates AND server-side validation.
 """
-import re
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -11,24 +10,9 @@ from .models import Expense
 
 class SignupForm(UserCreationForm):
     """
-    Signup form with explicit first_name and last_name fields.
-    If the user leaves them blank, we attempt to extract from the email.
+    Extends Django's built-in UserCreationForm to add an email field.
+    Passwords are hashed automatically by the parent class.
     """
-
-    first_name = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g. Sreehitha',
-        })
-    )
-    last_name = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g. Reddypuli',
-        })
-    )
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
@@ -39,10 +23,11 @@ class SignupForm(UserCreationForm):
 
     class Meta:
         model  = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+        fields = ['username', 'email', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Apply Bootstrap classes and placeholders to all inherited fields
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Choose a username',
@@ -56,48 +41,24 @@ class SignupForm(UserCreationForm):
             'placeholder': 'Confirm your password',
         })
 
-    def _extract_names_from_email(self, email):
-        """
-        Fallback: parse first/last name from email local part.
-        sreehithareddypuli@gmail.com -> ('Sreehithareddypuli', '')
-        john.doe@gmail.com           -> ('John', 'Doe')
-        jane_smith@yahoo.com         -> ('Jane', 'Smith')
-        """
-        local = email.split('@')[0]
-        parts = [p.capitalize() for p in re.split(r'[._\-]+', local) if p]
-        if len(parts) >= 2:
-            return parts[0], parts[-1]
-        elif len(parts) == 1:
-            return parts[0], ''
-        return '', ''
-
     def save(self, commit=True):
         """
-        Save the user.
-        - If first_name / last_name were typed -> use them directly.
-        - If left blank -> extract from email as best-effort fallback.
+        Save user with email only.
+        Username is the single identity field — no first_name/last_name used.
         """
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-
-        first = self.cleaned_data.get('first_name', '').strip()
-        last  = self.cleaned_data.get('last_name',  '').strip()
-
-        if first or last:
-            user.first_name = first
-            user.last_name  = last
-        else:
-            user.first_name, user.last_name = self._extract_names_from_email(
-                self.cleaned_data['email']
-            )
-
+        # first_name and last_name intentionally left blank
         if commit:
             user.save()
         return user
 
 
 class LoginForm(forms.Form):
-    """Simple login form."""
+    """
+    Simple login form — Django's authenticate() handles the actual check.
+    We build this manually so we can apply Bootstrap styling easily.
+    """
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',
         'placeholder': 'Username',
@@ -110,10 +71,14 @@ class LoginForm(forms.Form):
 
 
 class ExpenseForm(forms.ModelForm):
-    """ModelForm for creating and editing expenses."""
+    """
+    ModelForm for creating and editing expenses.
+    The 'user' field is excluded — it's set programmatically in the view.
+    """
 
     class Meta:
         model  = Expense
+        # Explicitly list fields so 'user' is never exposed to the client
         fields = ['title', 'amount', 'category', 'date']
         widgets = {
             'title': forms.TextInput(attrs={
@@ -131,7 +96,7 @@ class ExpenseForm(forms.ModelForm):
             }),
             'date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date',
+                'type': 'date',   # Renders native date picker in browsers
             }),
         }
 
